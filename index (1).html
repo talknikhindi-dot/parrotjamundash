@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parrot Jamun Adventure - Sound Edition</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #4ec0ca; font-family: 'Arial', sans-serif; }
+        canvas { display: block; }
+        #ui-layer {
+            position: absolute; top: 20px; left: 20px; color: white;
+            font-size: 30px; font-weight: bold; text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        #start-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white; z-index: 10;
+        }
+        .btn {
+            padding: 15px 40px; font-size: 24px; cursor: pointer;
+            background: #ffeb3b; color: #333; border: none; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+        .btn:hover { transform: scale(1.1); background: #fff176; }
+    </style>
+</head>
+<body>
+
+<div id="ui-layer">Score: <span id="score">0</span></div>
+
+<div id="start-screen">
+    <h1 id="main-title" style="font-size: 48px; color: #32CD32;">🦜 Parrot Jamun Dash</h1>
+    <p id="sub-title" style="font-size: 18px;">Fly & Eat juicy Jamuns!</p>
+    <button class="btn" onclick="startGame()">START GAME</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let score = 0;
+let gameRunning = false;
+let frame = 0;
+let bgOffset = 0;
+
+// --- SOUND ENGINE ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(freq, type, duration, volume) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+const parrot = {
+    x: 150, y: canvas.height / 2,
+    w: 70, h: 55,
+    gravity: 0.5, velocity: 0, jump: -9,
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        let rotation = Math.min(Math.max(this.velocity * 0.05, -0.3), 0.3);
+        ctx.rotate(rotation);
+
+        let wingY = Math.sin(frame * 0.3) * 15;
+        ctx.fillStyle = "#228B22";
+        ctx.beginPath();
+        ctx.ellipse(-10, wingY, 25, 12, Math.PI/4, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "#32CD32";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 35, 22, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(30, -5); ctx.quadraticCurveTo(50, 0, 30, 15);
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.beginPath(); ctx.arc(20, -8, 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "black";
+        ctx.beginPath(); ctx.arc(22, -8, 3, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+    },
+    update() {
+        this.velocity += this.gravity;
+        this.y += this.velocity;
+        if (this.y > canvas.height || this.y < 0) endGame();
+    }
+};
+
+function drawBackground() {
+    bgOffset -= 1;
+    if (bgOffset <= -canvas.width) bgOffset = 0;
+    
+    // Simple Tree Generation
+    ctx.fillStyle = "#3e2723";
+    for (let i = 0; i < 4; i++) {
+        let x = (i * canvas.width / 2) + bgOffset;
+        ctx.fillRect(x + 200, canvas.height - 300, 30, 300);
+        ctx.fillStyle = "#2e7d32";
+        ctx.beginPath();
+        ctx.arc(x + 215, canvas.height - 350, 100, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = "#3e2723";
+    }
+}
+
+const jamuns = [];
+function spawnJamun() {
+    if (frame % 80 === 0) {
+        jamuns.push({
+            x: canvas.width + 50,
+            y: Math.random() * (canvas.height - 200) + 100,
+            size: 20
+        });
+    }
+}
+
+function drawJamuns() {
+    jamuns.forEach((j, index) => {
+        j.x -= 6;
+        ctx.fillStyle = "#4B0082";
+        ctx.beginPath();
+        ctx.ellipse(j.x, j.y, j.size-5, j.size, 0, 0, Math.PI*2);
+        ctx.fill();
+        
+        let dx = parrot.x - j.x;
+        let dy = parrot.y - j.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist < 45) {
+            jamuns.splice(index, 1);
+            score += 1;
+            scoreEl.innerText = score;
+            // SCORE SOUND (High pitch)
+            playSound(800, 'sine', 0.2, 0.2);
+        }
+    });
+}
+
+function startGame() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    document.getElementById('start-screen').style.display = 'none';
+    score = 0; scoreEl.innerText = 0;
+    parrot.y = canvas.height / 2; parrot.velocity = 0;
+    jamuns.length = 0;
+    gameRunning = true;
+    animate();
+}
+
+function endGame() {
+    gameRunning = false;
+    // GAME OVER SOUND (Low pitch)
+    playSound(150, 'sawtooth', 0.5, 0.3);
+    document.getElementById('start-screen').style.display = 'flex';
+    document.getElementById('main-title').innerText = "Game Over!";
+    document.getElementById('sub-title').innerText = "Your Score: " + score;
+}
+
+window.addEventListener('mousedown', () => { 
+    if(gameRunning) {
+        parrot.velocity = parrot.jump;
+        // FLAP SOUND (Short noise)
+        playSound(300, 'triangle', 0.1, 0.1);
+    } 
+});
+
+window.addEventListener('keydown', (e) => { 
+    if(e.code === 'Space' && gameRunning) {
+        parrot.velocity = parrot.jump;
+        playSound(300, 'triangle', 0.1, 0.1);
+    } 
+});
+
+function animate() {
+    if (!gameRunning) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    drawBackground();
+    spawnJamun();
+    drawJamuns();
+    parrot.update();
+    parrot.draw();
+    requestAnimationFrame(animate);
+}
+</script>
+</body>
+</html>
