@@ -1098,6 +1098,108 @@ function animate() {
 
 </body>
 </html>
+    <head><!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Ads Continuous Rotator</title>
+    <style>
+        /* जाहिरात दिसण्याची फ्रेम - सर्व प्रकारच्या जाहिरातींसाठी (Vertical/Horizontal) */
+        #ad-master-box {
+            width: 100%;
+            max-width: 800px; 
+            min-height: 620px; /* सर्वात मोठ्या जाहिरातीसाठी (600px) पुरेशी जागा */
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .ad-link-btn {
+            background-color: #ff9800;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-block;
+            font-family: sans-serif;
+            transition: 0.3s;
+        }
+        .ad-link-btn:hover { background-color: #e68a00; }
+    </style>
+</head>
+<body>
+
+    <div id="ad-master-box">
+        <div id="ad-content-area">जाहिरातींचे चक्र सुरू होत आहे...</div>
+    </div>
+
+    <script>
+        // १० जाहिरातींची पूर्ण यादी (Loop साठी)
+        const myAds = [
+            { type: 'script', content: '<script src="https://pl28935290.effectivegatecpm.com/c5/14/2c/c5142ca3b47037e1691e240e10801c51.js"><\/script>' }, // १
+            { type: 'script', content: '<script src="https://pl28935311.effectivegatecpm.com/71/89/7f/71897f534106ee186d4bfa627dad2977.js"><\/script>' }, // २
+            { type: 'script', content: '<script async="async" data-cfasync="false" src="https://pl28935317.effectivegatecpm.com/7058c8ebcb7387568dc3755c9455a164/invoke.js"><\/script><div id="container-7058c8ebcb7387568dc3755c9455a164"></div>' }, // ३
+            { type: 'link', content: 'https://www.effectivegatecpm.com/j3n1jdsze?key=25485c1483fc14c9d4db5cf5b1f49c48' }, // ४
+            { type: 'script', content: '<script>atOptions = {"key" : "fac3ff351656f1ca8139a5bcab3f449c", "format" : "iframe", "height" : 250, "width" : 300, "params" : {}} ;<\/script><script src="https://www.highperformanceformat.com/fac3ff351656f1ca8139a5bcab3f449c/invoke.js"><\/script>' }, // ५
+            { type: 'script', content: '<script>atOptions = {"key" : "ba36348fdc54f1cb96b9006008af47ce", "format" : "iframe", "height" : 90, "width" : 728, "params" : {}} ;<\/script><script src="https://www.highperformanceformat.com/ba36348fdc54f1cb96b9006008af47ce/invoke.js"><\/script>' }, // ६
+            { type: 'script', content: '<script>atOptions = {"key" : "51260b4471635f8981be6f9f635e6430", "format" : "iframe", "height" : 600, "width" : 160, "params" : {}} ;<\/script><script src="https://www.highperformanceformat.com/51260b4471635f8981be6f9f635e6430/invoke.js"><\/script>' }, // ७
+            { type: 'script', content: '<script>atOptions = {"key" : "32f61f9e7560de2f0c4251098d4b6863", "format" : "iframe", "height" : 300, "width" : 160, "params" : {}} ;<\/script><script src="https://www.highperformanceformat.com/32f61f9e7560de2f0c4251098d4b6863/invoke.js"><\/script>' }, // ८
+            { type: 'script', content: '<script>atOptions = {"key" : "d6d36a105317fab1b31e9bce07d79138", "format" : "iframe", "height" : 60, "width" : 468, "params" : {}} ;<\/script><script src="https://www.highperformanceformat.com/d6d36a105317fab1b31e9bce07d79138/invoke.js"><\/script>' }, // ९
+            
+            // १० वी जाहिरात (इथे तुमचा १० वा कोड पेस्ट करा, सध्या मी एक नमुना दिला आहे)
+            { type: 'link', content: 'https://www.effectivegatecpm.com/j3n1jdsze?key=25485c1483fc14c9d4db5cf5b1f49c48' } // १०
+        ];
+
+        let currentIndex = 0;
+        const switchTime = 15000; // १५ सेकंदांचा टायमर
+
+        function runAdSystem() {
+            const container = document.getElementById('ad-content-area');
+            const currentAd = myAds[currentIndex];
+
+            // जुनी जाहिरात पूर्णपणे काढून टाकणे
+            container.innerHTML = '';
+
+            if (currentAd.type === 'script') {
+                // जाहिरात स्क्रिप्ट सुरक्षितपणे लोड करणे
+                const range = document.createRange();
+                const frag = range.createContextualFragment(currentAd.content);
+                container.appendChild(frag);
+            } 
+            else if (currentAd.type === 'link') {
+                // डायरेक्ट लिंकसाठी क्लिक बटन दाखवणे
+                container.innerHTML = `
+                    <div style="padding: 30px;">
+                        <h2 style="margin-bottom:20px; color:#333;">आमची खास जाहिरात पहा</h2>
+                        <a href="${currentAd.content}" target="_blank" class="ad-link-btn">जाहिरात उघडा (Click Here)</a>
+                        <p style="margin-top:15px; color:#666;">जाहिरात आपोआप १५ सेकंदांत बदलेल.</p>
+                    </div>`;
+            }
+
+            // इंडेक्स बदलणे (१० जाहिराती पूर्ण झाल्यावर पुन्हा १ वर म्हणजेच ० वर जाणे)
+            currentIndex = (currentIndex + 1) % myAds.length;
+
+            // पुढील जाहिरातीसाठी टायमर (Recursion)
+            setTimeout(runAdSystem, switchTime);
+        }
+
+        // पेज उघडल्याबरोबर सिस्टिम सुरू करा
+        window.onload = runAdSystem;
+    </script>
+
+</body>
+</html></head>
 
     
     
